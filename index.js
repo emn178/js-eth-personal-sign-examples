@@ -12,11 +12,28 @@ function addLog(log) {
 
 ethSignButton.addEventListener('click', function(event) {
   event.preventDefault()
-  var msg = '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0'
+  // var msg = '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0'
+  var msg = '0x99ab1f3b1111a7eb8fbb9797e5b05c2daa11ec771414ae3f9164ccf189c1cb33'
   var from = web3.eth.accounts[0]
   web3.eth.sign(from, msg, function (err, result) {
     if (err) return addLog(err)
     addLog('SIGNED:' + result)
+
+    addLog('recovering...')
+    const msgParams = { data: msg }
+    msgParams.sig = result;
+    console.dir({ msgParams })
+    const recovered = sigUtil.recoverPersonalSignature(msgParams)
+    console.dir({ recovered })
+
+    if (recovered === from ) {
+      addLog('SigUtil Successfully verified signer as ' + from)
+    } else {
+      addLog(recovered);
+      console.dir(recovered)
+      addLog('SigUtil Failed to verify signer when comparing ' + recovered + ' to ' + from)
+      addLog('Failed, comparing ' + recovered + ' to ' + from)
+    }
   })
 })
 
