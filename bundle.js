@@ -6939,27 +6939,42 @@ ethSignButton.addEventListener('click', function(event) {
   event.preventDefault()
   // var msg = '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0'
   var msg = '0x99ab1f3b1111a7eb8fbb9797e5b05c2daa11ec771414ae3f9164ccf189c1cb33'
+
+  // prepend '\x19Ethereum Signed Message:\n'
+  var msgWithPrefix = '0x26cbdfebb0816db29333b93f298997437c28bb4097679650956f983b6eb41195'
+
   var from = web3.eth.accounts[0]
-  web3.eth.sign(from, msg, function (err, result) {
-    if (err) return addLog(err)
-    addLog('SIGNED:' + result)
+  var sign = function(msg, msgWithPrefix, fail) {
+    web3.eth.sign(from, msgWithPrefix, function (err, result) {
+      if (err) return addLog(err)
+      addLog('SIGNED:' + result)
 
-    addLog('recovering...')
-    const msgParams = { data: msg }
-    msgParams.sig = result;
-    console.dir({ msgParams })
-    const recovered = sigUtil.recoverPersonalSignature(msgParams)
-    console.dir({ recovered })
+      addLog('recovering...')
+      const msgParams = { data: msg }
+      msgParams.sig = result;
+      console.dir({ msgParams })
+      const recovered = sigUtil.recoverPersonalSignature(msgParams)
+      console.dir({ recovered })
 
-    if (recovered === from ) {
-      addLog('SigUtil Successfully verified signer as ' + from)
-    } else {
-      addLog(recovered);
-      console.dir(recovered)
-      addLog('SigUtil Failed to verify signer when comparing ' + recovered + ' to ' + from)
-      addLog('Failed, comparing ' + recovered + ' to ' + from)
-    }
-  })
+      if (recovered === from ) {
+        addLog('SigUtil Successfully verified signer as ' + from)
+      } else if (fail) {
+        addLog('SigUtil Failed if without prefix, try with prefix again');
+        fail();
+      } else {
+        addLog(recovered);
+        console.dir(recovered)
+        addLog('SigUtil Failed to verify signer when comparing ' + recovered + ' to ' + from)
+        addLog('Failed, comparing ' + recovered + ' to ' + from)
+      }
+    })
+  }
+
+  sign(msg, msg, function () {
+    setTimeout(function () {
+      sign(msg, msgWithPrefix);
+    }, 500);
+  });
 })
 
 personalSignButton.addEventListener('click', function(event) {
