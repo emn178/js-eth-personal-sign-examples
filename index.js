@@ -34,7 +34,7 @@ ethSignButton.addEventListener('click', function(event) {
       if (recovered === from ) {
         addLog('SigUtil Successfully verified signer as ' + from)
       } else if (fail) {
-        addLog('SigUtil Failed if without prefix, try with prefix again');
+        addLog('SigUtil Failed without prefix, try with prefix again');
         fail();
       } else {
         addLog(recovered);
